@@ -13,20 +13,15 @@
  *     Steve Pitschke  - initial API and implementation
  *******************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace OSLC4Net.Core.Query
 {
     /// <summary>
     /// Language specified string value operand from oslc.where clause
     /// </summary>
-    public interface LangedStringValue : Value
+    public interface ILangedStringValue : IValue
     {
         string Value { get; }
 
-        String LangTag { get; }
+        string LangTag { get; }
     }
 }

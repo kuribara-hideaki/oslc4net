@@ -73,7 +73,7 @@ namespace OSLC4Net.Core.DotNetRdfProvider
             bool rebuildgraph = true
         ) : this(rebuildgraph)
         {
-            this.Graph = graph;
+            Graph = graph;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace OSLC4Net.Core.DotNetRdfProvider
         ///
         public override MediaTypeFormatter GetPerRequestFormatterInstance(Type type, HttpRequestMessage request, MediaTypeHeaderValue mediaType)
         {
-            this.httpRequest = request;
+            httpRequest = request;
             return base.GetPerRequestFormatterInstance(type, request, mediaType);
         }
 
@@ -359,7 +359,7 @@ namespace OSLC4Net.Core.DotNetRdfProvider
             {
                 if (formatterLogger == null) throw;
 
-                formatterLogger.LogError(String.Empty, e.Message);
+                formatterLogger.LogError(string.Empty, e.Message);
 
                 tcs.SetResult(GetDefaultValueForType(type));
             }

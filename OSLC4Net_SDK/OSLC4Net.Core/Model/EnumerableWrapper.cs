@@ -13,17 +13,17 @@
  *     Steve Pitschke  - initial API and implementation
  *******************************************************************************/
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-
 namespace OSLC4Net.Core.Model
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Reflection;
+
     public class EnumerableWrapper : IEnumerable<object>
     {
+        private object opaqueObj;
+
         public EnumerableWrapper(object opaqueObj)
         {
             this.opaqueObj = opaqueObj;
@@ -31,20 +31,26 @@ namespace OSLC4Net.Core.Model
 
         public IEnumerator<object> GetEnumerator()
         {
-            MethodInfo method = opaqueObj.GetType().GetMethod("GetEnumerator", Type.EmptyTypes);
+            var method = opaqueObj.GetType().GetMethod("GetEnumerator", Type.EmptyTypes);
 
             method = method.MakeGenericMethod();
 
             return new EnumeratorWrapper(method.Invoke(opaqueObj, null));
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
 
         private class EnumeratorWrapper : IEnumerator<object>
         {
+            private PropertyInfo currentInfo;
+
+            private MethodInfo moveNext;
+
+            private object opaqueEnumerator;
+
             public EnumeratorWrapper(object opaqueEnumerator)
             {
                 this.opaqueEnumerator = opaqueEnumerator;
@@ -52,17 +58,12 @@ namespace OSLC4Net.Core.Model
                 moveNext = opaqueEnumerator.GetType().GetMethod("MoveNext", Type.EmptyTypes);
             }
 
-            public object Current
-            {
-                get
-                {
-                    return currentInfo.GetValue(opaqueEnumerator, null);
-                }
-            }
+            public object Current => currentInfo.GetValue(opaqueEnumerator, null);
 
             public void Dispose()
             {
-                opaqueEnumerator.GetType().GetMethod("Dispose", Type.EmptyTypes).Invoke(opaqueEnumerator, Type.EmptyTypes);
+                opaqueEnumerator.GetType().GetMethod("Dispose", Type.EmptyTypes)
+                    .Invoke(opaqueEnumerator, Type.EmptyTypes);
             }
 
             public bool MoveNext()
@@ -72,14 +73,9 @@ namespace OSLC4Net.Core.Model
 
             public void Reset()
             {
-                opaqueEnumerator.GetType().GetMethod("Reset", Type.EmptyTypes).Invoke(opaqueEnumerator, Type.EmptyTypes);
+                opaqueEnumerator.GetType().GetMethod("Reset", Type.EmptyTypes)
+                    .Invoke(opaqueEnumerator, Type.EmptyTypes);
             }
-
-            private object opaqueEnumerator;
-            private PropertyInfo currentInfo;
-            private MethodInfo moveNext;
         }
-
-        private object opaqueObj;
     }
 }

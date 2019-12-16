@@ -24,7 +24,7 @@ namespace OSLC4Net.Core.Query.Impl
     /// <summary>
     /// Implementation of LangedStringValue interface
     /// </summary>
-    internal class LangedStringValueImpl : ValueImpl, LangedStringValue
+    internal class LangedStringValueImpl : ValueImpl, ILangedStringValue
     {
         public
         LangedStringValueImpl(CommonTree tree) : base(tree, ValueType.LANGED_STRING)
@@ -63,7 +63,7 @@ namespace OSLC4Net.Core.Query.Impl
             return '"' + Value.ToString() + "\"@" + LangTag.ToString();
         }
 
-        private String value = null;
-        private String langTag = null;
+        private string value = null;
+        private string langTag = null;
     }
 }

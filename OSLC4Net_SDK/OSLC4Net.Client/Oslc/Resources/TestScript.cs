@@ -35,7 +35,7 @@ namespace OSLC4Net.Client.Oslc.Resources
         private readonly ISet<Link>     validatesRequirements       = new HashSet<Link>();
 
         private Uri      executionInstructions;
-        private String   description;
+        private string description;
 
         public TestScript() : base()
         {
@@ -48,22 +48,22 @@ namespace OSLC4Net.Client.Oslc.Resources
 
         public void AddContributor(Uri contributor)
         {
-            this.contributors.Add(contributor);
+            contributors.Add(contributor);
         }
 
         public void AddCreator(Uri creator)
         {
-            this.creators.Add(creator);
+            creators.Add(creator);
         }
 
         public void AddRelatedChangeRequest(Link relatedChangeRequest)
         {
-            this.relatedChangeRequests.Add(relatedChangeRequest);
+            relatedChangeRequests.Add(relatedChangeRequest);
         }
 
         public void AddValidatesRequirement(Link requirement)
         {
-            this.validatesRequirements.Add(requirement);
+            validatesRequirements.Add(requirement);
         }
     
         [OslcDescription("The person(s) who are responsible for the work needed to complete the change request.")]
@@ -89,8 +89,8 @@ namespace OSLC4Net.Client.Oslc.Resources
         [OslcDescription("Descriptive text (reference: Dublin Core) about resource represented as rich text in XHTML content.")]
         [OslcPropertyDefinition(OslcConstants.DCTERMS_NAMESPACE + "description")]
         [OslcTitle("Description")]
-        [OslcValueType(OSLC4Net.Core.Model.ValueType.XMLLiteral)]
-        public String GetDescription()
+        [OslcValueType(Core.Model.ValueType.XMLLiteral)]
+        public string GetDescription()
         {
             return description;
         }
@@ -145,7 +145,7 @@ namespace OSLC4Net.Client.Oslc.Resources
             }
         }
 
-        public void setDescription(String description)
+        public void setDescription(string description)
         {
             this.description = description;
         }

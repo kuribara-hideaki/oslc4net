@@ -35,7 +35,7 @@ namespace OSLC4Net.Client.Oslc.Resources
         private Link     reportsOnTestCase;
         private Link     reportsOnTestPlan;
         private Link     producedByTestExecutionRecord;    
-        private String   status;
+        private string status;
 
         public TestResult() : base()
         {
@@ -48,7 +48,7 @@ namespace OSLC4Net.Client.Oslc.Resources
     
         public void AddAffectedByChangeRequest(Link affectingChangeRequest)
         {
-            this.affectedByChangeRequests.Add(affectingChangeRequest);
+            affectedByChangeRequests.Add(affectingChangeRequest);
         }
 
         [OslcDescription("Change request that affects the Test Result.")]
@@ -107,8 +107,8 @@ namespace OSLC4Net.Client.Oslc.Resources
         [OslcOccurs(Occurs.ZeroOrOne)]
         [OslcPropertyDefinition(QmConstants.QUALITY_MANAGEMENT_NAMESPACE + "status")]
         [OslcTitle("Status")]
-        [OslcValueType(OSLC4Net.Core.Model.ValueType.XMLLiteral)]
-        public String GetStatus()
+        [OslcValueType(Core.Model.ValueType.XMLLiteral)]
+        public string GetStatus()
         {
             return status;
         }
@@ -143,7 +143,7 @@ namespace OSLC4Net.Client.Oslc.Resources
             this.executesTestScript = executesTestScript;
         }
     
-        public void SetStatus(String status)
+        public void SetStatus(string status)
         {
             this.status = status;
         }

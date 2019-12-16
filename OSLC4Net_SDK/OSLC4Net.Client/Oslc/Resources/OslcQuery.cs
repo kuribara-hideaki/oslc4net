@@ -31,27 +31,27 @@ namespace OSLC4Net.Client.Oslc.Resources
     {
 	    private readonly OslcClient oslcClient;
 	
-	    private readonly String capabilityUrl;
+	    private readonly string capabilityUrl;
 	
-	    private String queryUrl;
+	    private string queryUrl;
 	
 	    private readonly int pageSize;
 
         private readonly UriBuilder uriBuilder;
 	
 	    //query parameters
-	    private readonly String where;
-	    private readonly String select;
-	    private readonly String orderBy;
-	    private readonly String searchTerms;
-	    private readonly String prefix;
+	    private readonly string where;
+	    private readonly string select;
+	    private readonly string orderBy;
+	    private readonly string searchTerms;
+	    private readonly string prefix;
 
         /// <summary>
         /// Create an OSLC query that uses the remote system's default page size.
         /// </summary>
         /// <param name="oslcClient">the authenticated OSLC client</param>
         /// <param name="capabilityUrl">the URL that is the base </param>
-	    public OslcQuery(OslcClient oslcClient, String capabilityUrl) : 
+	    public OslcQuery(OslcClient oslcClient, string capabilityUrl) : 
 		    this(oslcClient, capabilityUrl, 0)
         {
 	    }
@@ -62,7 +62,7 @@ namespace OSLC4Net.Client.Oslc.Resources
         /// <param name="oslcClient">the authenticated OSLC client</param>
         /// <param name="capabilityUrl">capabilityUrl capabilityUrl the URL that is the base</param>
         /// <param name="oslcQueryParams">an OslcQueryParameters object</param>
-	    public OslcQuery(OslcClient oslcClient, String capabilityUrl, OslcQueryParameters oslcQueryParams) :
+	    public OslcQuery(OslcClient oslcClient, string capabilityUrl, OslcQueryParameters oslcQueryParams) :
 		    this(oslcClient, capabilityUrl, 0, oslcQueryParams)
         {
 	    }
@@ -73,7 +73,7 @@ namespace OSLC4Net.Client.Oslc.Resources
         /// <param name="oslcClient">the authenticated OSLC client</param>
         /// <param name="capabilityUrl">the URL that is the base</param>
         /// <param name="pageSize">the number of results to include on each page (OslcQueryResult)</param>
-	    public OslcQuery(OslcClient oslcClient, String capabilityUrl, int pageSize) :
+	    public OslcQuery(OslcClient oslcClient, string capabilityUrl, int pageSize) :
 		    this(oslcClient, capabilityUrl, pageSize, null)
         {
 	    }
@@ -85,7 +85,7 @@ namespace OSLC4Net.Client.Oslc.Resources
         /// <param name="capabilityUrl">the URL that is the base</param>
         /// <param name="pageSize">the number of results to include on each page (OslcQueryResult)</param>
         /// <param name="oslcQueryParams">an OslcQueryParameters object</param>
-	    public OslcQuery(OslcClient oslcClient, String capabilityUrl,
+	    public OslcQuery(OslcClient oslcClient, string capabilityUrl,
 					     int pageSize, OslcQueryParameters oslcQueryParams)
         {
 		    this.oslcClient = oslcClient;
@@ -95,19 +95,19 @@ namespace OSLC4Net.Client.Oslc.Resources
 		    //make a local copy of any query parameters
 		    if (oslcQueryParams != null)
 		    {
-			    this.where = oslcQueryParams.GetWhere();
-			    this.select = oslcQueryParams.GetSelect();
-			    this.orderBy = oslcQueryParams.GetOrderBy();
-			    this.searchTerms = oslcQueryParams.GetSearchTerms();
-			    this.prefix = oslcQueryParams.GetPrefix();
+			    where = oslcQueryParams.GetWhere();
+			    select = oslcQueryParams.GetSelect();
+			    orderBy = oslcQueryParams.GetOrderBy();
+			    searchTerms = oslcQueryParams.GetSearchTerms();
+			    prefix = oslcQueryParams.GetPrefix();
 		    } else {
-			    this.where = this.select = this.orderBy = this.searchTerms = this.prefix = null;
+			    where = select = orderBy = searchTerms = prefix = null;
 		    }
 
-            this.uriBuilder = new UriBuilder(capabilityUrl);
+            uriBuilder = new UriBuilder(capabilityUrl);
             ApplyPagination();
             ApplyOslcQueryParams();
-            this.queryUrl = this.GetQueryUrl();				
+            queryUrl = GetQueryUrl();				
 	    }
 	
 	    internal OslcQuery(OslcQueryResult previousResult) :
@@ -115,11 +115,11 @@ namespace OSLC4Net.Client.Oslc.Resources
         {
 	    }
 	
-	    private OslcQuery(OslcQuery previousQuery, String nextPageUrl) :
+	    private OslcQuery(OslcQuery previousQuery, string nextPageUrl) :
 		    this(previousQuery.oslcClient, previousQuery.capabilityUrl, previousQuery.pageSize)
         {
-		    this.queryUrl = nextPageUrl;
-		    this.uriBuilder = new UriBuilder(nextPageUrl);
+		    queryUrl = nextPageUrl;
+		    uriBuilder = new UriBuilder(nextPageUrl);
 	    }
 	
 	    private void ApplyPagination() {
@@ -130,23 +130,23 @@ namespace OSLC4Net.Client.Oslc.Resources
 	    }
 	
 	    private void ApplyOslcQueryParams() {
-		    if (this.where != null && this.where.Length != 0) {
-			    QueryParam("oslc.where", this.where);
+		    if (where != null && where.Length != 0) {
+			    QueryParam("oslc.where", where);
 		    }
-            if (this.select != null && this.select.Length != 0)
+            if (select != null && select.Length != 0)
             {
-			    QueryParam("oslc.select", this.select);
+			    QueryParam("oslc.select", select);
 		    }
-		    if (this.orderBy != null && this.orderBy.Length != 0) {
-			    QueryParam("oslc.orderBy", this.orderBy);
+		    if (orderBy != null && orderBy.Length != 0) {
+			    QueryParam("oslc.orderBy", orderBy);
 		    }
-            if (this.searchTerms != null && this.searchTerms.Length != 0)
+            if (searchTerms != null && searchTerms.Length != 0)
             {
-			    QueryParam("oslc.searchTerms", this.searchTerms);
+			    QueryParam("oslc.searchTerms", searchTerms);
 		    }
-            if (this.prefix != null && this.prefix.Length != 0)
+            if (prefix != null && prefix.Length != 0)
             {
-			    QueryParam("oslc.prefix", this.prefix);
+			    QueryParam("oslc.prefix", prefix);
 		    }
 	    }
 
@@ -161,14 +161,14 @@ namespace OSLC4Net.Client.Oslc.Resources
 	    /**
 	     * @return the base query capability URL
 	     */
-	    public String GetCapabilityUrl() {
+	    public string GetCapabilityUrl() {
 		    return capabilityUrl;
 	    }
 	
 	    /**
 	     * @return the complete query URL
 	     */
-	    public String GetQueryUrl() {
+	    public string GetQueryUrl() {
 		    if (queryUrl == null) {
 			    queryUrl = uriBuilder.ToString();
 		    }
@@ -185,7 +185,7 @@ namespace OSLC4Net.Client.Oslc.Resources
 
         private void QueryParam(string name, string value)
         {
-            String content = name + '=' + value;
+            string content = name + '=' + value;
 
             if (uriBuilder.Query != null && uriBuilder.Query.Length > 1)
             {

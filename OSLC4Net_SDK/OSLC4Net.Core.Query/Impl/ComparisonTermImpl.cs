@@ -29,7 +29,7 @@ namespace OSLC4Net.Core.Query.Impl
         public
         ComparisonTermImpl(
             CommonTree tree,
-            IDictionary<String, String> prefixMap
+            IDictionary<string, string> prefixMap
         ) : base(tree, TermType.COMPARISON, prefixMap)
         {
             switch (((CommonTree)tree.GetChild(1)).Token.Type) {
@@ -63,7 +63,7 @@ namespace OSLC4Net.Core.Query.Impl
             }
         }
 
-        public Value Operand
+        public IValue Operand
         {
             get
             {
@@ -84,11 +84,11 @@ namespace OSLC4Net.Core.Query.Impl
             return Property.ToString() + OperatorExtension.ToString(op) + Operand.ToString();
         }
     
-        static internal Value
+        static internal IValue
         CreateValue(
             CommonTree treeOperand,
-            String errorPrefix,
-            IDictionary<String, String> prefixMap
+            string errorPrefix,
+            IDictionary<string, string> prefixMap
         )
         {
             switch (treeOperand.Token.Type) {
@@ -112,12 +112,12 @@ namespace OSLC4Net.Core.Query.Impl
         }
     
         private readonly Operator op;
-        private Value operand = null;
+        private IValue operand = null;
     }
 
     internal static class OperatorExtension
     {
-        public static String
+        public static string
         ToString(Operator op)
         {
             switch (op)

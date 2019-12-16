@@ -32,12 +32,12 @@ namespace OSLC4Net.Client.Oslc.Resources
         private readonly ISet<Uri>      contributors                = new HashSet<Uri>(); // XXX - TreeSet<> in Java
         private readonly ISet<Uri>      creators                    = new HashSet<Uri>(); // XXX - TreeSet<> in Java
         private readonly ISet<Link>     relatedChangeRequests       = new HashSet<Link>();
-        private readonly ISet<String>   subjects                    = new HashSet<String>(); // XXX - TreeSet<> in Java
+        private readonly ISet<string>   subjects                    = new HashSet<string>(); // XXX - TreeSet<> in Java
         private readonly ISet<Link>     testsChangeRequests         = new HashSet<Link>();
         private readonly ISet<Link>     usesTestScripts             = new HashSet<Link>();
         private readonly ISet<Link>     validatesRequirements       = new HashSet<Link>();
 
-        private String   description;
+        private string description;
 
         public TestCase() : base()
         {
@@ -50,37 +50,37 @@ namespace OSLC4Net.Client.Oslc.Resources
     
         public void AddContributor(Uri contributor)
         {
-            this.contributors.Add(contributor);
+            contributors.Add(contributor);
         }
 
         public void AddCreator(Uri creator)
         {
-            this.creators.Add(creator);
+            creators.Add(creator);
         }
 
         public void AddRelatedChangeRequest(Link relatedChangeRequest)
         {
-            this.relatedChangeRequests.Add(relatedChangeRequest);
+            relatedChangeRequests.Add(relatedChangeRequest);
         }
 
-        public void AddSubject(String subject)
+        public void AddSubject(string subject)
         {
-            this.subjects.Add(subject);
+            subjects.Add(subject);
         }
 
         public void AddTestsChangeRequest(Link changeRequest)
         {
-            this.testsChangeRequests.Add(changeRequest);
+            testsChangeRequests.Add(changeRequest);
         }
     
         public void AddUsesTestScript(Link testscript)
         {
-            this.usesTestScripts.Add(testscript);
+            usesTestScripts.Add(testscript);
         }
 
         public void AddValidatesRequirement(Link requirement)
         {
-            this.validatesRequirements.Add(requirement);
+            validatesRequirements.Add(requirement);
         }
     
         [OslcDescription("The person(s) who are responsible for the work needed to complete the test case.")]
@@ -106,8 +106,8 @@ namespace OSLC4Net.Client.Oslc.Resources
         [OslcDescription("Descriptive text (reference: Dublin Core) about resource represented as rich text in XHTML content.")]
         [OslcPropertyDefinition(OslcConstants.DCTERMS_NAMESPACE + "description")]
         [OslcTitle("Description")]
-        [OslcValueType(OSLC4Net.Core.Model.ValueType.XMLLiteral)]
-        public String GetDescription()
+        [OslcValueType(Core.Model.ValueType.XMLLiteral)]
+        public string GetDescription()
         {
             return description;
         }
@@ -128,7 +128,7 @@ namespace OSLC4Net.Client.Oslc.Resources
         [OslcPropertyDefinition(OslcConstants.DCTERMS_NAMESPACE + "subject")]
         [OslcReadOnly(false)]
         [OslcTitle("Subjects")]
-        public String[] GetSubjects()
+        public string[] GetSubjects()
         {
             return subjects.ToArray();
         }
@@ -186,7 +186,7 @@ namespace OSLC4Net.Client.Oslc.Resources
             }
         }
 
-        public void SetDescription(String description)
+        public void SetDescription(string description)
         {
             this.description = description;
         }
@@ -201,7 +201,7 @@ namespace OSLC4Net.Client.Oslc.Resources
            }
         }
 
-        public void SetSubjects(String[] subjects)
+        public void SetSubjects(string[] subjects)
         {
             this.subjects.Clear();
 

@@ -32,7 +32,7 @@ namespace OSLC4Net.Client.Oslc.Resources
 	    private readonly ISet<Uri>      contributors                = new HashSet<Uri>(); // XXX - TreeSet<> in Java
         private readonly ISet<Uri>      creators                    = new HashSet<Uri>(); // XXX - TreeSet<> in Java
         private readonly ISet<Uri>      rdfTypes                    = new HashSet<Uri>(); // XXX - TreeSet<> in Java
-        private readonly ISet<String>   subjects                    = new HashSet<String>(); // XXX - TreeSet<> in Java
+        private readonly ISet<string>   subjects                    = new HashSet<string>(); // XXX - TreeSet<> in Java
         private readonly ISet<Uri>      states                      = new HashSet<Uri>(); // XXX - TreeSet<> in Java
         private readonly ISet<Uri>      verdicts                    = new HashSet<Uri>(); // XXX - TreeSet<> in Java
         private readonly ISet<Uri>      contributions               = new HashSet<Uri>(); // XXX - TreeSet<> in Java
@@ -40,11 +40,11 @@ namespace OSLC4Net.Client.Oslc.Resources
         private readonly ISet<ParameterInstance> outputParameters   = new HashSet<ParameterInstance>(); // XXX - TreeSet<> in Java
     
         private DateTime?   created;
-        private String      identifier;
+        private string identifier;
         private Uri         instanceShape;
         private DateTime?   modified;
         private Uri         serviceProvider;
-        private String      title;
+        private string title;
         private Uri         desiredState;
         private Link        producedByAutomationRequest;
         private Link        reportsOnAutomationPlan;
@@ -65,47 +65,47 @@ namespace OSLC4Net.Client.Oslc.Resources
     
         public void AddContributor(Uri contributor)
         {
-            this.contributors.Add(contributor);
+            contributors.Add(contributor);
         }
 
         public void AddCreator(Uri creator)
         {
-            this.creators.Add(creator);
+            creators.Add(creator);
         }
     
         public void AddRdfType(Uri rdfType)
         {
-            this.rdfTypes.Add(rdfType);
+            rdfTypes.Add(rdfType);
         }
 
-        public void AddSubject(String subject)
+        public void AddSubject(string subject)
         {
-            this.subjects.Add(subject);
+            subjects.Add(subject);
         }
 
         public void AddState(Uri state)
         {
-            this.states.Add(state);
+            states.Add(state);
         }
     
         public void AddVerdict(Uri verdict)
         {
-            this.verdicts.Add(verdict);
+            verdicts.Add(verdict);
         }
     
         public void AddContribution(Uri contribution)
         {
-            this.contributions.Add(contribution);
+            contributions.Add(contribution);
         }
     
         public void AddInputParameter(ParameterInstance parameter)
         {
-            this.inputParameters.Add(parameter);
+            inputParameters.Add(parameter);
         }
     
         public void AddOutputParameter(ParameterInstance parameter)
         {
-            this.outputParameters.Add(parameter);
+            outputParameters.Add(parameter);
         }
     
         [OslcDescription("The person(s) who are responsible for the work needed to complete the automation result.")]
@@ -142,7 +142,7 @@ namespace OSLC4Net.Client.Oslc.Resources
         [OslcPropertyDefinition(OslcConstants.DCTERMS_NAMESPACE + "identifier")]
         [OslcReadOnly]
         [OslcTitle("Identifier")]
-        public String GetIdentifier()
+        public string GetIdentifier()
         {
             return identifier;
         }
@@ -188,7 +188,7 @@ namespace OSLC4Net.Client.Oslc.Resources
         [OslcPropertyDefinition(OslcConstants.DCTERMS_NAMESPACE + "subject")]
         [OslcReadOnly(false)]
         [OslcTitle("Subjects")]
-        public String[] GetSubjects()
+        public string[] GetSubjects()
         {
             return subjects.ToArray();
         }
@@ -197,8 +197,8 @@ namespace OSLC4Net.Client.Oslc.Resources
         [OslcOccurs(Occurs.ExactlyOne)]
         [OslcPropertyDefinition(OslcConstants.DCTERMS_NAMESPACE + "title")]
         [OslcTitle("Title")]
-        [OslcValueType(OSLC4Net.Core.Model.ValueType.XMLLiteral)]
-        public String GetTitle()
+        [OslcValueType(Core.Model.ValueType.XMLLiteral)]
+        public string GetTitle()
         {
             return title;
         }
@@ -330,7 +330,7 @@ namespace OSLC4Net.Client.Oslc.Resources
             }
         }
 
-        public void setIdentifier(String identifier)
+        public void setIdentifier(string identifier)
         {
             this.identifier = identifier;
         }
@@ -360,7 +360,7 @@ namespace OSLC4Net.Client.Oslc.Resources
             this.serviceProvider = serviceProvider;
         }
 
-        public void setSubjects(String[] subjects)
+        public void setSubjects(string[] subjects)
         {
             this.subjects.Clear();
 
@@ -370,7 +370,7 @@ namespace OSLC4Net.Client.Oslc.Resources
             }
         }
 
-        public void setTitle(String title)
+        public void setTitle(string title)
         {
             this.title = title;
         }
@@ -422,21 +422,21 @@ namespace OSLC4Net.Client.Oslc.Resources
     
         public void setInputParameters(ParameterInstance[] parameters)
         {
-            this.inputParameters.Clear();
+            inputParameters.Clear();
 
             if (parameters != null)
             {
-                this.inputParameters.AddAll(parameters);
+                inputParameters.AddAll(parameters);
             }
         }
     
         public void setOutputParameters(ParameterInstance[] parameters)
         {
-            this.outputParameters.Clear();
+            outputParameters.Clear();
 
             if (parameters != null)
             {
-                this.outputParameters.AddAll(parameters);
+                outputParameters.AddAll(parameters);
             }
         }
     }
