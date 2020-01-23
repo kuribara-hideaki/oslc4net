@@ -13,10 +13,7 @@
  *     Steve Pitschke  - initial API and implementation
  *******************************************************************************/
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Antlr.Runtime.Tree;
 
@@ -33,34 +30,9 @@ namespace OSLC4Net.Core.Query.Impl
             this.prefixMap = prefixMap;
         }
 
-        public IList<SortTerm> Children
+        public IList<ITree> Children
         {
-            get
-            {
-                if (children == null) {
-            
-                    IList<CommonTree> rawChildren = (IList<CommonTree>)tree.Children;
-            
-                    children = new List<SortTerm>(rawChildren.Count());
-            
-                    foreach (CommonTree child in rawChildren) {
-
-                        object simpleTerm;
-                
-                        switch(child.Token.Type) {
-                        default:
-                            throw new InvalidOperationException("unimplemented type of sort term: " + child.Token.Text);
-                        }
-                
-                        children.Add((SortTerm)simpleTerm);
-                    }
-
-                    // XXX - Can't figure out why this doesn't work
-                    // children = children.AsReadOnly();
-                }
-        
-                return children;
-            }
+            get => tree.Children;
         }
 
         private readonly CommonTree tree;

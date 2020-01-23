@@ -13,13 +13,13 @@
  *     Steve Pitschke  - initial API and implementation
  *******************************************************************************/
 
-using System;
 using System.Collections.Generic;
+using Antlr.Runtime.Tree;
 
 namespace OSLC4Net.Core.Query
 {
     public interface SortTerms
     {
-        IList<SortTerm> Children { get; }
+        IList<ITree> Children { get; }
     }
 }
