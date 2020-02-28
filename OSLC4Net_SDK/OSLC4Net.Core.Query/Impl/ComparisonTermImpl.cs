@@ -68,9 +68,11 @@ namespace OSLC4Net.Core.Query.Impl
             {
                 if (operand == null)
                 {
-                    if (tree?.ChildCount >= 2)
+                    if (tree?.ChildCount >= 3)
                     {
                         var treeOperand = (CommonTree)tree.GetChild(2);
+                        if (treeOperand == null)
+                            return null;
 
                         operand = CreateValue(treeOperand, "unspported literal value type",
                                               prefixMap);
@@ -104,6 +106,7 @@ namespace OSLC4Net.Core.Query.Impl
                 case OslcWhereParser.DECIMAL:
                     return new DecimalValueImpl(treeOperand);
                 case OslcWhereParser.STRING_LITERAL:
+                case OslcWhereParser.ASTERISK:
                     return new StringValueImpl(treeOperand);
                 case OslcWhereParser.TYPED_VALUE:
                     return new TypedValueImpl(treeOperand, prefixMap);
