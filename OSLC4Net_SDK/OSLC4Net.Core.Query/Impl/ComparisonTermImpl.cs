@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Antlr.Runtime.Tree;
 
 namespace OSLC4Net.Core.Query.Impl
@@ -32,26 +30,27 @@ namespace OSLC4Net.Core.Query.Impl
             IDictionary<string, string> prefixMap
         ) : base(tree, TermType.COMPARISON, prefixMap)
         {
-            switch (((CommonTree)tree.GetChild(1)).Token.Type) {
-            case OslcWhereParser.EQUAL:
-                op = Operator.EQUALS;
-                break;
-            case OslcWhereParser.NOT_EQUAL:
-                op = Operator.NOT_EQUALS;
-                break;
-            case OslcWhereParser.LESS:
-                op = Operator.LESS_THAN;
-                break;
-            case OslcWhereParser.LESS_EQUAL:
-                op = Operator.LESS_EQUALS;
-                break;
-            case OslcWhereParser.GREATER:
-                op = Operator.GREATER_THAN;
-                break;
-            default:
-            case OslcWhereParser.GREATER_EQUAL:
-                op = Operator.GREATER_EQUALS;
-                break;
+            switch (((CommonTree)tree.GetChild(1)).Token.Type)
+            {
+                case OslcWhereParser.EQUAL:
+                    op = Operator.EQUALS;
+                    break;
+                case OslcWhereParser.NOT_EQUAL:
+                    op = Operator.NOT_EQUALS;
+                    break;
+                case OslcWhereParser.LESS:
+                    op = Operator.LESS_THAN;
+                    break;
+                case OslcWhereParser.LESS_EQUAL:
+                    op = Operator.LESS_EQUALS;
+                    break;
+                case OslcWhereParser.GREATER:
+                    op = Operator.GREATER_THAN;
+                    break;
+                default:
+                case OslcWhereParser.GREATER_EQUAL:
+                    op = Operator.GREATER_EQUALS;
+                    break;
             }
         }
 
@@ -69,10 +68,15 @@ namespace OSLC4Net.Core.Query.Impl
             {
                 if (operand == null)
                 {
-                    CommonTree treeOperand = (CommonTree)tree.GetChild(2);
-            
-                    operand = CreateValue(treeOperand, "unspported literal value type",
-                                          prefixMap);            
+                    if (tree?.ChildCount >= 2)
+                    {
+                        var treeOperand = (CommonTree)tree.GetChild(2);
+
+                        operand = CreateValue(treeOperand, "unspported literal value type",
+                                              prefixMap);
+                    }
+                    else
+                        return null;
                 }
 
                 return operand;
@@ -83,7 +87,7 @@ namespace OSLC4Net.Core.Query.Impl
         {
             return Property.ToString() + OperatorExtension.ToString(op) + Operand.ToString();
         }
-    
+
         static internal IValue
         CreateValue(
             CommonTree treeOperand,
@@ -91,26 +95,27 @@ namespace OSLC4Net.Core.Query.Impl
             IDictionary<string, string> prefixMap
         )
         {
-            switch (treeOperand.Token.Type) {
-            case OslcWhereParser.IRI_REF:
-                return new UriRefValueImpl(treeOperand);
-            case OslcWhereParser.BOOLEAN:
-                return new BooleanValueImpl(treeOperand);
-            case OslcWhereParser.DECIMAL:
-                return new DecimalValueImpl(treeOperand);
-            case OslcWhereParser.STRING_LITERAL:
-                return new StringValueImpl(treeOperand);
-            case OslcWhereParser.TYPED_VALUE:
-                return new TypedValueImpl(treeOperand, prefixMap);
-            case OslcWhereParser.LANGED_VALUE:
-                return new LangedStringValueImpl(treeOperand);
-            default:
-                throw new InvalidOperationException(
-                        errorPrefix + ": " +
-                            treeOperand.Token.Text);
-            }       
+            switch (treeOperand.Token.Type)
+            {
+                case OslcWhereParser.IRI_REF:
+                    return new UriRefValueImpl(treeOperand);
+                case OslcWhereParser.BOOLEAN:
+                    return new BooleanValueImpl(treeOperand);
+                case OslcWhereParser.DECIMAL:
+                    return new DecimalValueImpl(treeOperand);
+                case OslcWhereParser.STRING_LITERAL:
+                    return new StringValueImpl(treeOperand);
+                case OslcWhereParser.TYPED_VALUE:
+                    return new TypedValueImpl(treeOperand, prefixMap);
+                case OslcWhereParser.LANGED_VALUE:
+                    return new LangedStringValueImpl(treeOperand);
+                default:
+                    throw new InvalidOperationException(
+                            errorPrefix + ": " +
+                                treeOperand.Token.Text);
+            }
         }
-    
+
         private readonly Operator op;
         private IValue operand = null;
     }
