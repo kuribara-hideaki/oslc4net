@@ -77,6 +77,7 @@ namespace OSLC4Net.Core.QueryTests
                     new Trial("qm:tested_by{+oslc:description}", true),
                     new Trial("?qm:blah", true,true),
                     new Trial("-dcterms:title=",true,true),
+                    new Trial("-dcterms:title",true),
                 };
 
             foreach (Trial trial in trials)

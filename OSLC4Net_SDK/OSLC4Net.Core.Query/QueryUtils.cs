@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
@@ -188,9 +189,20 @@ namespace OSLC4Net.Core.Query
             try
             {
                 var parser = new OslcOrderByParser(orderByExpression);
-
+                if (parser.input.ToString() != orderByExpression)
+                {
+                    return new SortTermsImpl(isError: true, errorReason: "parse error");
+                }
                 var rawTree = (CommonTree)parser.Result;
                 var child = rawTree.GetChild(0);
+
+                if (child is BaseTree baseTree)
+                {
+                    if (baseTree.Children?.Any(item => item is CommonErrorNode) ?? false)
+                    {
+                        return new SortTermsImpl(isError: true, errorReason: baseTree?.ToString());
+                    }
+                }
 
                 if (child is CommonErrorNode)
                 {
