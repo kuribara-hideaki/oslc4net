@@ -4,7 +4,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
- *  
+ *
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
  * and the Eclipse Distribution License is available at
  * http://www.eclipse.org/org/documents/edl-v10.php.
@@ -15,60 +15,77 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Collections.ObjectModel;
 using System.Text;
-
-using ParseException = OSLC4Net.Core.Query.ParseException;
-
-using OSLC4Net.Core.Query.Impl;
-
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
+using OSLC4Net.Core.Query.Impl;
 
 namespace OSLC4Net.Core.Query
 {
-    public class QueryUtils
+    public static class QueryUtils
     {
+        public class PrefixClause : IBaseClause
+        {
+            public PrefixClause(IDictionary<string, string> dictionary = null, bool isError = false, string errorReason = null)
+            {
+                if (dictionary == null)
+                {
+                    dictionary = new Dictionary<string, string>();
+                }
+                PrefixMapDictionary = new ReadOnlyDictionary<string, string>(dictionary);
+                IsError = isError;
+                ErrorReason = errorReason;
+            }
+
+            public bool IsError { get; }
+
+            public string ErrorReason { get; }
+
+            public IReadOnlyDictionary<string, string> PrefixMapDictionary { get; }
+        }
+
         /// <summary>
         ///  Parse a oslc.prefix clause into a map between prefixes
-        /// and corresponding URIs 
+        /// and corresponding URIs
         /// <p><b>Note</b>: {@link Object#toString()} of result has been overridden to
         /// return input expression.
         /// </summary>
         /// <param name="prefixExpression">the oslc.prefix expression</param>
         /// <returns>the prefix map</returns>
-        public static IDictionary<string, string>
-        ParsePrefixes(
-            string prefixExpression
-        )
+        public static PrefixClause ParsePrefixes(string prefixExpression)
         {
-            if (prefixExpression == null) {
-                return new Dictionary<string, string>();
+            if (prefixExpression == null)
+            {
+                return new PrefixClause();
             }
-        
-            OslcPrefixParser parser = new OslcPrefixParser(prefixExpression);
-            CommonTree rawTree = (CommonTree)parser.Result;        
- 
-            IList<ITree> rawPrefixes = rawTree.Children;
-            PrefixMap prefixMap =
-                new PrefixMap(rawPrefixes.Count);
-           
-             foreach (CommonTree rawPrefix in rawPrefixes) {
 
-                if (rawPrefix.Token == Tokens.Skip || rawPrefix is CommonErrorNode) {
-                     throw new ParseException(rawPrefix.ToString());
-                 }
+            var parser = new OslcPrefixParser(prefixExpression);
+            var rawTree = (CommonTree)parser.Result;
+
+            IList<ITree> rawPrefixes = rawTree.Children;
+            var prefixMap = new PrefixMap(rawPrefixes.Count);
+
+            foreach (var iTree in rawPrefixes)
+            {
+                if (!(iTree is CommonTree rawPrefix))
+                {
+                    return new PrefixClause(isError: true);
+                }
+                if (rawPrefix.Token == Tokens.Skip || rawPrefix is CommonErrorNode)
+                {
+                    return new PrefixClause(isError: true, errorReason: rawPrefix.ToString());
+                }
 
                 string pn = rawPrefix.GetChild(0).Text;
                 string uri = rawPrefix.GetChild(1).Text;
-                 
-                 uri = uri.Substring(1, uri.Length - 2);
-                 
-                 prefixMap.Add(pn, uri);
-             }
-             
-            return prefixMap;
+
+                uri = uri.Substring(1, uri.Length - 2);
+
+                prefixMap.Add(pn, uri);
+            }
+
+            return new PrefixClause(dictionary: prefixMap);
         }
 
         /// <summary>
@@ -79,30 +96,27 @@ namespace OSLC4Net.Core.Query
         /// <param name="prefixMap">map between XML namespace prefixes and
         /// associated URLs</param>
         /// <returns>the parsed where clause</returns>
-        public static WhereClause
-        ParseWhere(
-            string whereExpression,
-            IDictionary<string, string> prefixMap
-        )
+        public static WhereClause ParseWhere(string whereExpression, IReadOnlyDictionary<string, string> prefixMap)
         {
             try
             {
-                OslcWhereParser parser = new OslcWhereParser(whereExpression);
-                CommonTree rawTree = (CommonTree)parser.Result;
+                var parser = new OslcWhereParser(whereExpression);
+                var rawTree = (CommonTree)parser.Result;
                 ITree child = rawTree.GetChild(0);
 
                 if (child is CommonErrorNode)
                 {
-                    throw new ParseException(child.ToString());
+                    return new WhereClauseImpl(isError: true, errorReason: child?.ToString());
                 }
-            
-                return (WhereClause) new WhereClauseImpl(rawTree, prefixMap);
-            
-            } catch (RecognitionException e) {
-                throw new ParseException(e);
+
+                return new WhereClauseImpl(rawTree, prefixMap);
+            }
+            catch (RecognitionException e)
+            {
+                return new WhereClauseImpl(isError: true, errorReason: e.ToString());
             }
         }
-    
+
         /// <summary>
         /// Parse a oslc.select expression
         /// </summary>
@@ -111,30 +125,27 @@ namespace OSLC4Net.Core.Query
         /// <param name="prefixMap">map between XML namespace prefixes and
         /// associated URLs</param>
         /// <returns>the parsed select clause</returns>
-        public static SelectClause
-        ParseSelect(
-            string selectExpression,
-            IDictionary<string, string> prefixMap
-        )
+        public static SelectClause ParseSelect(string selectExpression, IReadOnlyDictionary<string, string> prefixMap)
         {
             try
             {
-                OslcSelectParser parser = new OslcSelectParser(selectExpression);        
-                CommonTree rawTree = (CommonTree)parser.Result;
+                var parser = new OslcSelectParser(selectExpression);
+                var rawTree = (CommonTree)parser.Result;
                 ITree child = rawTree.GetChild(0);
 
                 if (child is CommonErrorNode)
                 {
-                    throw new ParseException(child.ToString());
+                    return new SelectClauseImpl(isError: true, errorReason: child?.ToString());
                 }
 
                 return new SelectClauseImpl(rawTree, prefixMap);
-            
-            } catch (RecognitionException e) {
-                throw new ParseException(e);
+            }
+            catch (RecognitionException e)
+            {
+                return new SelectClauseImpl(isError: true, errorReason: e.ToString());
             }
         }
-    
+
         /// <summary>
         /// Parse a oslc.properties expression
         /// </summary>
@@ -143,17 +154,13 @@ namespace OSLC4Net.Core.Query
         /// <param name="prefixMap"map between XML namespace prefixes and
         ///associated URLs></param>
         /// <returns>the parsed properties clause</returns>
-        public static PropertiesClause
-        parseProperties(
-            string propertiesExpression,
-            IDictionary<string, string> prefixMap
-        )
+        public static PropertiesClause parseProperties(string propertiesExpression, IReadOnlyDictionary<string, string> prefixMap)
         {
             try
             {
-                OslcSelectParser parser = new OslcSelectParser(propertiesExpression);
-                CommonTree rawTree = (CommonTree)parser.Result;
-                ITree child = rawTree.GetChild(0);
+                var parser = new OslcSelectParser(propertiesExpression);
+                var rawTree = (CommonTree)parser.Result;
+                var child = rawTree.GetChild(0);
 
                 if (child is CommonErrorNode)
                 {
@@ -161,14 +168,13 @@ namespace OSLC4Net.Core.Query
                 }
 
                 return new PropertiesClauseImpl(rawTree, prefixMap);
-
             }
             catch (RecognitionException e)
             {
                 throw new ParseException(e);
             }
         }
-    
+
         /// <summary>
         /// Parse a oslc.orderBy expression
         /// </summary>
@@ -177,40 +183,38 @@ namespace OSLC4Net.Core.Query
         /// <param name="prefixMap">map between XML namespace prefixes and
         /// associated URLs</param>
         /// <returns></returns>
-        public static OrderByClause
-        ParseOrderBy(
-            string orderByExpression,
-            IDictionary<string, string> prefixMap
-        )
+        public static OrderByClause ParseOrderBy(string orderByExpression, IReadOnlyDictionary<string, string> prefixMap)
         {
-            try {
+            try
+            {
+                var parser = new OslcOrderByParser(orderByExpression);
 
-                OslcOrderByParser parser = new OslcOrderByParser(orderByExpression);
-                CommonTree rawTree = (CommonTree)parser.Result;
-                ITree child = rawTree.GetChild(0);
-            
-                if (child is CommonErrorNode) {
-                    throw new ParseException(child.ToString());
+                var rawTree = (CommonTree)parser.Result;
+                var child = rawTree.GetChild(0);
+
+                if (child is CommonErrorNode)
+                {
+                    return new SortTermsImpl(isError: true, errorReason: child?.ToString());
                 }
 
                 return (OrderByClause)new SortTermsImpl(rawTree, prefixMap);
-            
-            } catch (RecognitionException e) {
-                throw new ParseException(e);
+            }
+            catch (RecognitionException e)
+            {
+                return new SortTermsImpl(isError: true, errorReason: e.ToString());
             }
         }
-
 
         /// <summary>
         /// Create a map representation of the Properties returned
         /// from parsing oslc.properties or olsc.select URL query
         /// parameters suitable for generating a property result from an
         /// HTTP GET request.<p/>
-        /// 
+        ///
         /// The map keys are the property names; i.e. the local name of the
         /// property concatenated to the XML namespace of the property.  The
         /// values of the map are:<p/>
-        /// 
+        ///
         /// <ul>
         /// <li> OSLC4NetConstants.OSLC4NET_PROPERTY_WILDCARD - if all
         /// properties at this level are to be output.  No recursion
@@ -227,159 +231,172 @@ namespace OSLC4Net.Core.Query
         {
             IList<Property> children = properties.Children;
             IDictionary<string, object> result = new Dictionary<string, object>(children.Count);
-        
-            foreach (Property property in children) {
-            
+
+            foreach (Property property in children)
+            {
                 PName pname = null;
                 string propertyName = null;
-            
-                if (! property.IsWildcard) {
+
+                if (!property.IsWildcard)
+                {
                     pname = property.Identifier;
                     propertyName = pname.ns + pname.local;
                 }
-            
-                switch (property.Type) {
-                case PropertyType.IDENTIFIER:
-                    if (property.IsWildcard) {
-                    
-                        if (result is SingletonWildcardProperties) {
-                            break;
-                        }
-                    
-                        if (result is NestedWildcardProperties) {
-                            result = new BothWildcardPropertiesImpl(
-                                    (NestedWildcardPropertiesImpl)result);
-                        } else {
-                            result = new SingletonWildcardPropertiesImpl();
-                        }
-                    
-                        break;
-                    
-                    } else {
-                    
-                        if (result is SingletonWildcardProperties) {
-                            break;
-                        }
-                    }
-                
-                    result.Add(propertyName,
-                               OSLC4NetConstants.OSLC4NET_PROPERTY_SINGLETON);
-                
-                    break;
-                
-                case PropertyType.NESTED_PROPERTY:
-                    if (property.IsWildcard) {
-                    
-                        if (! (result is NestedWildcardProperties)) {                        
-                            if (result is SingletonWildcardProperties) {
-                                result = new BothWildcardPropertiesImpl();
-                            } else {
-                                result = new NestedWildcardPropertiesImpl(result);
+
+                switch (property.Type)
+                {
+                    case PropertyType.IDENTIFIER:
+                        if (property.IsWildcard)
+                        {
+                            if (result is SingletonWildcardProperties)
+                            {
+                                break;
                             }
-                        
-                            ((NestedWildcardPropertiesImpl)result).commonNestedProperties =
-                                InvertSelectedProperties((NestedProperty)property);
-                        
-                       } else {
-                            MergePropertyMaps(
-                                ((NestedWildcardProperties)result).CommonNestedProperties(),
-                                InvertSelectedProperties((NestedProperty)property));
-                       }
-                    
+
+                            if (result is NestedWildcardProperties)
+                            {
+                                result = new BothWildcardPropertiesImpl(
+                                        (NestedWildcardPropertiesImpl)result);
+                            }
+                            else
+                            {
+                                result = new SingletonWildcardPropertiesImpl();
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            if (result is SingletonWildcardProperties)
+                            {
+                                break;
+                            }
+                        }
+
+                        result.Add(propertyName,
+                                   OSLC4NetConstants.OSLC4NET_PROPERTY_SINGLETON);
+
                         break;
-                    }
-                
-                    result.Add(propertyName,
-                               InvertSelectedProperties(
-                                       (NestedProperty)property));
-                
-                    break;
+
+                    case PropertyType.NESTED_PROPERTY:
+                        if (property.IsWildcard)
+                        {
+                            if (!(result is NestedWildcardProperties))
+                            {
+                                if (result is SingletonWildcardProperties)
+                                {
+                                    result = new BothWildcardPropertiesImpl();
+                                }
+                                else
+                                {
+                                    result = new NestedWildcardPropertiesImpl(result);
+                                }
+
+                                ((NestedWildcardPropertiesImpl)result).commonNestedProperties =
+                                    InvertSelectedProperties((NestedProperty)property);
+                            }
+                            else
+                            {
+                                MergePropertyMaps(
+                                    ((NestedWildcardProperties)result).CommonNestedProperties(),
+                                    InvertSelectedProperties((NestedProperty)property));
+                            }
+
+                            break;
+                        }
+
+                        result.Add(propertyName,
+                                   InvertSelectedProperties(
+                                           (NestedProperty)property));
+
+                        break;
                 }
             }
-        
-            if (! (result is NestedWildcardProperties)) {
+
+            if (!(result is NestedWildcardProperties))
+            {
                 return result;
             }
-        
+
             IDictionary<String, Object> commonNestedProperties =
                 ((NestedWildcardProperties)result).CommonNestedProperties();
-        
-            foreach (string propertyName in result.Keys) {
-            
+
+            foreach (string propertyName in result.Keys)
+            {
                 IDictionary<String, Object> nestedProperties =
                     (IDictionary<string, object>)result[propertyName];
-            
-                if (nestedProperties == OSLC4NetConstants.OSLC4NET_PROPERTY_SINGLETON) {
+
+                if (nestedProperties == OSLC4NetConstants.OSLC4NET_PROPERTY_SINGLETON)
+                {
                     result.Add(propertyName, commonNestedProperties);
-                } else {
+                }
+                else
+                {
                     MergePropertyMaps(nestedProperties, commonNestedProperties);
                 }
             }
-        
+
             return result;
         }
-    
+
         /// <summary>
         /// Parse a oslc.searchTerms expression
-        /// 
+        ///
         /// <p><b>Note</b>: {@link Object#toString()} of result has been overridden to
         /// return input expression.
         /// </summary>
         /// <param name="searchTermsExpression">contents of an oslc.searchTerms HTTP query
         /// parameter</param>
         /// <returns>the parsed search terms clause</returns>
-        public static SearchTermsClause
-        ParseSearchTerms(
-            string searchTermsExpression
-        )
+        public static SearchTermsClause ParseSearchTerms(string searchTermsExpression)
         {
-            try {
-            
-                OslcSearchTermsParser parser = new OslcSearchTermsParser(searchTermsExpression);
-                CommonTree rawTree = (CommonTree)parser.Result;
-                CommonTree child = (CommonTree)rawTree.GetChild(0);
-            
-                if (child is CommonErrorNode) {
-                    throw ((CommonErrorNode)child).trappedException;
+            try
+            {
+                var parser = new OslcSearchTermsParser(searchTermsExpression);
+                var rawTree = (CommonTree)parser.Result;
+                var child = (CommonTree)rawTree.GetChild(0);
+
+                if (child is CommonErrorNode node)
+                {
+                    return new StringList(isError: true, errorReason: node.trappedException.ToString());
                 }
 
-                IList<ITree> rawList = rawTree.Children;
-                StringList stringList = new StringList(rawList.Count);
-            
-                foreach (CommonTree str in rawList) {
+                var rawList = rawTree.Children;
+                var stringList = new StringList(rawList.Count);
 
-                    string rawString = str.Text;
-                
-                    stringList.Add(rawString.Substring(1, rawString.Length-2));
+                foreach (var iTree in rawList)
+                {
+                    var str = (CommonTree)iTree;
+                    var rawString = str.Text;
+
+                    stringList.Add(rawString.Substring(1, rawString.Length - 2));
                 }
-            
+
                 return stringList;
-            
-            } catch (RecognitionException e) {
-                throw new ParseException(e);
+            }
+            catch (RecognitionException e)
+            {
+                return new StringList(isError: true, errorReason: e.ToString());
             }
         }
-    
+
         /// <summary>
         /// Implementation of a IDictionary<String, String> prefixMap
         /// </summary>
         private class PrefixMap : Dictionary<string, string>
         {
-            public
-            PrefixMap(int size)
+            public PrefixMap(int size)
                 : base(size)
             {
             }
-            
-            public override string
-            ToString()
+
+            public override string ToString()
             {
-                StringBuilder buffer = new StringBuilder();
-                bool first = true;
+                var buffer = new StringBuilder();
+                var first = true;
 
                 foreach (string key in Keys)
                 {
-
                     if (first)
                     {
                         first = false;
@@ -405,22 +422,25 @@ namespace OSLC4Net.Core.Query
         /// </summary>
         private class StringList : List<string>, SearchTermsClause
         {
-            public
-            StringList(int size) : base(size)
+            public StringList(int size = 0, bool isError = false, string errorReason = null) : base(size)
             {
+                IsError = isError;
+                ErrorReason = errorReason;
             }
 
-            public override string
-            ToString()
+            public override string ToString()
             {
                 StringBuilder buffer = new StringBuilder();
                 bool first = true;
-            
-                foreach (string str in this) {
-                
-                    if (first) {
+
+                foreach (var str in this)
+                {
+                    if (first)
+                    {
                         first = false;
-                    } else {
+                    }
+                    else
+                    {
                         buffer.Append(',');
                     }
 
@@ -428,66 +448,60 @@ namespace OSLC4Net.Core.Query
                     buffer.Append(str);
                     buffer.Append('"');
                 }
-            
+
                 return buffer.ToString();
             }
+
+            public bool IsError { get; }
+            public string ErrorReason { get; }
         }
 
         /// <summary>
         /// Implementation of SingletonWildcardProperties
         /// </summary>
-        private class SingletonWildcardPropertiesImpl :
-            Dictionary<string, object>,
-            SingletonWildcardProperties
+        private class SingletonWildcardPropertiesImpl
+            : Dictionary<string, object>, SingletonWildcardProperties
         {
             public
             SingletonWildcardPropertiesImpl() : base(0)
             {
             }
-       }
+        }
 
         /// <summary>
         /// Implementation of NestedWildcardProperties
         /// </summary>
-       private class NestedWildcardPropertiesImpl :
-            Dictionary<string, object>,
-            NestedWildcardProperties
+        private class NestedWildcardPropertiesImpl
+            : Dictionary<string, object>, NestedWildcardProperties
         {
-            public
-            NestedWildcardPropertiesImpl(IDictionary<string, object> accumulated) : base(accumulated)
+            public NestedWildcardPropertiesImpl(IDictionary<string, object> accumulated) : base(accumulated)
             {
             }
-        
-            protected
-            NestedWildcardPropertiesImpl()
+
+            protected NestedWildcardPropertiesImpl()
             {
             }
-        
-            public IDictionary<string, object>
-            CommonNestedProperties()
+
+            public IDictionary<string, object> CommonNestedProperties()
             {
                 return commonNestedProperties;
             }
-        
-            internal IDictionary<string, object> commonNestedProperties =
-                new Dictionary<string, object>();
+
+            internal IDictionary<string, object> commonNestedProperties = new Dictionary<string, object>();
         }
 
         /// <summary>
         /// Implementation of both SingletonWildcardProperties and
         /// NestedWildcardProperties
         /// </summary>
-        private class BothWildcardPropertiesImpl :
-            NestedWildcardPropertiesImpl,
-            SingletonWildcardProperties
+        private class BothWildcardPropertiesImpl : NestedWildcardPropertiesImpl, SingletonWildcardProperties
         {
-            public
-            BothWildcardPropertiesImpl()
+            public BothWildcardPropertiesImpl()
             {
             }
-        
-            public
-            BothWildcardPropertiesImpl(NestedWildcardPropertiesImpl accumulated) : this()
+
+            public BothWildcardPropertiesImpl(NestedWildcardPropertiesImpl accumulated)
+                : this()
             {
                 commonNestedProperties = accumulated.CommonNestedProperties();
             }
@@ -499,50 +513,30 @@ namespace OSLC4Net.Core.Query
         /// </summary>
         /// <param name="lhs">target of property map merge</param>
         /// <param name="rhs">source of property map merge</param>
-        private static void
-        MergePropertyMaps(
-            IDictionary<string, object> lhs,
-            IDictionary<string, object> rhs
-        )
+        private static void MergePropertyMaps(IDictionary<string, object> lhs, IDictionary<string, object> rhs)
         {
-            ICollection<String> propertyNames = rhs.Keys;
-        
-            foreach (string propertyName in propertyNames) {
-            
+            foreach (string propertyName in rhs.Keys)
+            {
                 IDictionary<String, Object> lhsNestedProperties =
                     (IDictionary<string, object>)lhs[propertyName];
                 IDictionary<String, Object> rhsNestedProperties =
                     (IDictionary<string, object>)rhs[propertyName];
-            
-                if (lhsNestedProperties == rhsNestedProperties) {
+
+                if (lhsNestedProperties == rhsNestedProperties)
+                {
                     continue;
                 }
-            
+
                 if (lhsNestedProperties == null ||
-                    lhsNestedProperties == OSLC4NetConstants.OSLC4NET_PROPERTY_SINGLETON) {
-                
+                    lhsNestedProperties == OSLC4NetConstants.OSLC4NET_PROPERTY_SINGLETON)
+                {
                     lhs.Add(propertyName, rhsNestedProperties);
-                
+
                     continue;
                 }
-            
+
                 MergePropertyMaps(lhsNestedProperties, rhsNestedProperties);
             }
-        }
-
-        /// <summary>
-        /// Check list of errors from parsing some expression, generating
-        /// @{link {@link ParseException} if there are any.
-        /// </summary>
-        /// <param name="parser"></param>
-        private static void
-        CheckErrors(Parser parser)
-        {
-            if (! parser.Failed) {
-                return;
-            }
-        
-            throw new ParseException("error");
         }
     }
 }

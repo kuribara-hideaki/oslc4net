@@ -111,8 +111,9 @@ public partial class OslcOrderByParser : Antlr.Runtime.Parser
 
 	    public OslcOrderByParser(string orderBy) :
 			this(new CommonTokenStream(new OslcOrderByLexer(new ANTLRStringStream(orderBy))))
-	    {
-	    }
+        {
+
+        }
 		
 		public object Result
 		{
