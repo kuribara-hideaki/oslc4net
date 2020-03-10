@@ -103,7 +103,18 @@ namespace OSLC4Net.Core.Query
             {
                 var parser = new OslcWhereParser(whereExpression);
                 var rawTree = (CommonTree)parser.Result;
-                ITree child = rawTree.GetChild(0);
+                var child = rawTree.GetChild(0);
+
+                if (child is CommonTree commonTree)
+                {
+                    var errorNode = commonTree.Children
+                        ?.SelectMany(item => (item as CommonTree)?.Children ?? new List<ITree>())
+                        .Where(item => item is CommonErrorNode);
+                    if (errorNode != null && errorNode.Any())
+                    {
+                        return new WhereClauseImpl(isError: true, errorReason: errorNode.ToString());
+                    }
+                }
 
                 if (child is CommonErrorNode)
                 {
