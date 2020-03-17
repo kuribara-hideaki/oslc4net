@@ -4,7 +4,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
- *  
+ *
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
  * and the Eclipse Distribution License is available at
  * http://www.eclipse.org/org/documents/edl-v10.php.
@@ -12,11 +12,6 @@
  * Contributors:
  *     Steve Pitschke  - initial API and implementation
  *******************************************************************************/
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace OSLC4Net.Core.Query
 {
@@ -27,7 +22,7 @@ namespace OSLC4Net.Core.Query
         NESTED,
         TOP_LEVEL
     }
-    
+
     /// <summary>
     /// Simple term from oslc.where clause
     /// </summary>
@@ -40,5 +35,22 @@ namespace OSLC4Net.Core.Query
          * return <code>null</code>.
          */
         PName Property { get; }
+
+        bool IsError { get; }
+        string ErrorReason { get; }
+    }
+
+    public class SimpleTermWithError : SimpleTerm
+    {
+        public SimpleTermWithError(bool isError = false, string errorReason = null)
+        {
+            IsError = isError;
+            ErrorReason = errorReason;
+        }
+
+        public TermType Type => TermType.COMPARISON;
+        public PName Property => null;
+        public bool IsError { get; }
+        public string ErrorReason { get; }
     }
 }

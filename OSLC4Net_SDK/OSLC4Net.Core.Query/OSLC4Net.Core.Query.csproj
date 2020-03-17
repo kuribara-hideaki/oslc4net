@@ -62,6 +62,7 @@
     <Compile Include="ComparisonTerm.cs" />
     <Compile Include="CompoundTerm.cs" />
     <Compile Include="DecimalValue.cs" />
+    <Compile Include="IBaseClause.cs" />
     <Compile Include="Impl\BooleanValueImpl.cs" />
     <Compile Include="Impl\ComparisonTermImpl.cs" />
     <Compile Include="Impl\CompoundTermImpl.cs" />
