@@ -129,13 +129,16 @@ namespace OSLC4Net.Core.DotNetRdfProvider
 
             }
 
+            int index = 0;
+
             foreach (object obj in objects)
             {
                 HandleSingleResource(descriptionResource,
                                      obj,
                                      graph,
                                      namespaceMappings,
-                                     properties);
+                                     properties,
+                                     ref index);
             }
 
             if (descriptionAbout != null)
@@ -167,7 +170,8 @@ namespace OSLC4Net.Core.DotNetRdfProvider
                                                  object obj,
                                                  IGraph graph,
                                                  INamespaceMapper namespaceMappings,
-                                                 IDictionary<string, object> properties)
+                                                 IDictionary<string, object> properties,
+                                                 ref int index)
         {
             Type objType = obj.GetType();
 
@@ -196,7 +200,8 @@ namespace OSLC4Net.Core.DotNetRdfProvider
             }
             else
             {
-                mainResource = graph.CreateBlankNode();
+                mainResource = graph.CreateBlankNode($"Node{index:0000000}");
+                index++;
             }
 
             if (objType.GetCustomAttributes(typeof(OslcResourceShape), false).Length > 0)
