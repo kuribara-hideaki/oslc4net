@@ -463,7 +463,7 @@ namespace OSLC4Net.Core.Resources
 
         public void SetDecomposes(Link[] decomposes)
         {
-            _affectedBy.Clear();
+            _decomposes.Clear();
 
             if (decomposes != null)
             {

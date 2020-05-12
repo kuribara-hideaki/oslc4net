@@ -4,7 +4,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
- *  
+ *
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
  * and the Eclipse Distribution License is available at
  * http://www.eclipse.org/org/documents/edl-v10.php.
@@ -13,10 +13,7 @@
  *     Steve Pitschke  - initial API and implementation
  *******************************************************************************/
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Antlr.Runtime.Tree;
 
 namespace OSLC4Net.Core.Query.Impl
@@ -29,7 +26,7 @@ namespace OSLC4Net.Core.Query.Impl
         public
         TypedValueImpl(
             CommonTree tree,
-            IDictionary<string, string> prefixMap
+            IReadOnlyDictionary<string, string> prefixMap
         ) : base(tree, ValueType.TYPED_STRING)
         {
             this.prefixMap = prefixMap;
@@ -58,13 +55,17 @@ namespace OSLC4Net.Core.Query.Impl
                     string rawPName = tree.GetChild(1).Text;
 
                     prefixedName = new PName();
-            
+
                     int colon = rawPName.IndexOf(':');
-            
-                    if (colon < 0) {
+
+                    if (colon < 0)
+                    {
                         prefixedName.local = rawPName;
-                    } else { 
-                        if (colon > 0) {
+                    }
+                    else
+                    {
+                        if (colon > 0)
+                        {
                             prefixedName.prefix = rawPName.Substring(0, colon);
                             prefixedName.ns = prefixMap[prefixedName.prefix];
                         }
@@ -81,7 +82,7 @@ namespace OSLC4Net.Core.Query.Impl
             return '"' + Value.ToString() + "\"^^" + PrefixedName.ToString();
         }
 
-        private readonly IDictionary<string, string> prefixMap;
+        private readonly IReadOnlyDictionary<string, string> prefixMap;
         private string value = null;
         private PName prefixedName = null;
     }
